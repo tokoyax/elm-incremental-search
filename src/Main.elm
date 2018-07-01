@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (Html, Attribute, program, h1, text, div, input, ul, li, strong)
+import Html exposing (Html, Attribute, program, h1, text, div, input, ul, li)
 import Html.Attributes exposing (placeholder, value)
 import Html.Events exposing (onInput)
 
@@ -38,17 +38,26 @@ update msg ({ words, searchWord } as model) =
 
 view : Model -> Html Msg
 view { words, searchWord } =
-    let
-        filteredWords =
-            List.filter (String.contains searchWord) words
-                |> List.map (\word -> li [] [ text word ])
-    in
-        div []
-            [ h1 [] [ text "Incremental Search" ]
-            , input [ placeholder "Search...", value searchWord, onInput Search ] []
-            , ul []
-                filteredWords
-            ]
+    div []
+        [ h1 [] [ text "Incremental Search" ]
+        , input [ placeholder "Search...", value searchWord, onInput Search ] []
+        , ul []
+            (partialMatch words searchWord |> List.map wordToListItem)
+        ]
+
+
+{-| 部分一致した文字列のみをフィルタリングする
+-}
+partialMatch : List String -> String -> List String
+partialMatch words containWord =
+    List.filter (String.contains containWord) words
+
+
+{-| 文字列をliでラップする
+-}
+wordToListItem : String -> Html Msg
+wordToListItem word =
+    li [] [ text word ]
 
 
 
