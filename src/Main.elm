@@ -8,32 +8,28 @@ import Html.Events exposing (onInput)
 ---- MODEL ----
 
 
-{-| TODO
--}
 type alias Model =
-    ()
+    { searchWord : String, words : List String }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( (), Cmd.none )
+    ( { words = words, searchWord = "" }, Cmd.none )
 
 
 
 ---- UPDATE ----
 
 
-{-| TODO
--}
 type Msg
-    = NoOp
+    = Search String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ words, searchWord } as model) =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        Search word ->
+            ( { model | searchWord = word }, Cmd.none )
 
 
 
@@ -41,16 +37,18 @@ update msg model =
 
 
 view : Model -> Html Msg
-view model =
-    div []
-        [ h1 [] [ text "Incremental Search" ]
-        , input [ placeholder "Search..." ] []
-        , ul []
-            [ li [] [ text "foo" ]
-            , li [] [ text "bar" ]
-            , li [] [ text "hoge" ]
+view { words, searchWord } =
+    let
+        filteredWords =
+            List.filter (String.contains searchWord) words
+                |> List.map (\word -> li [] [ text word ])
+    in
+        div []
+            [ h1 [] [ text "Incremental Search" ]
+            , input [ placeholder "Search...", value searchWord, onInput Search ] []
+            , ul []
+                filteredWords
             ]
-        ]
 
 
 
