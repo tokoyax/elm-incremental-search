@@ -45,6 +45,8 @@ view model =
     div []
         [ h1 [] [ text "Incremental Search" ]
         , input [ placeholder "Search..." ] []
+
+        -- empty list pattern -> ul [ class "empty" ] []
         , ul []
             [ li [] [ text "foo" ]
             , li [] [ text "bar" ]

@@ -27,6 +27,10 @@ ul {
   border-radius: 5px;
 }
 
+.empty {
+  visibility: hidden;
+}
+
 ul > li {
   border-bottom: 1px dotted;
   padding: 4px 8px;
