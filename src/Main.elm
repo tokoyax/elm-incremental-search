@@ -1,39 +1,45 @@
 module Main exposing (..)
 
-import Html exposing (Html, Attribute, program, h1, text, div, input, ul, li, strong)
-import Html.Attributes exposing (placeholder, value)
+import Html exposing (Attribute, Html, div, h1, input, li, program, strong, text, ul)
+import Html.Attributes exposing (class, placeholder, value)
 import Html.Events exposing (onInput)
 
 
 ---- MODEL ----
 
 
-{-| TODO
--}
 type alias Model =
-    ()
+    { words : List String }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( (), Cmd.none )
+    ( { words = words }, Cmd.none )
 
 
 
 ---- UPDATE ----
 
 
-{-| TODO
--}
 type Msg
-    = NoOp
+    = Input String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        Input s ->
+            ( { model | words = filterByInput msg words }, Cmd.none )
+
+
+filterByInput : Msg -> List String -> List String
+filterByInput input words =
+    case input of
+        Input "" ->
+            words
+
+        Input s ->
+            List.filter (String.contains s) words
 
 
 
@@ -44,15 +50,22 @@ view : Model -> Html Msg
 view model =
     div []
         [ h1 [] [ text "Incremental Search" ]
-        , input [ placeholder "Search..." ] []
-
-        -- empty list pattern -> ul [ class "empty" ] []
-        , ul []
-            [ li [] [ text "foo" ]
-            , li [] [ text "bar" ]
-            , li [] [ text "hoge" ]
-            ]
+        , input [ placeholder "Search...", onInput (\w -> Input w) ] []
+        , wordList model.words
         ]
+
+
+wordList : List String -> Html Msg
+wordList words =
+    if List.isEmpty words then
+        ul [ class "empty" ] []
+    else
+        ul [] <| words2li words
+
+
+words2li : List String -> List (Html Msg)
+words2li =
+    List.map (\word -> li [] [ text word ])
 
 
 
