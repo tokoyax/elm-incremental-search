@@ -3,18 +3,25 @@ module Main exposing (..)
 import Html exposing (Attribute, Html, div, h1, input, li, program, strong, text, ul)
 import Html.Attributes exposing (class, placeholder, value)
 import Html.Events exposing (onInput)
+import Regex exposing (contains)
 
 
 ---- MODEL ----
 
 
+type MatchType
+    = Partial
+    | Foward
+    | Backward
+
+
 type alias Model =
-    { words : List String }
+    { words : List String, searchWord : String, matchType : MatchType }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { words = words }, Cmd.none )
+    ( { words = words, searchWord = "", matchType = Partial }, Cmd.none )
 
 
 
@@ -22,24 +29,18 @@ init =
 
 
 type Msg
-    = Input String
+    = Search String
+    | MatchTypeChange MatchType
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update msg ({ words, searchWord, matchType } as model) =
     case msg of
-        Input s ->
-            ( { model | words = filterByInput msg words }, Cmd.none )
+        Search w ->
+            ( { model | searchWord = w }, Cmd.none )
 
-
-filterByInput : Msg -> List String -> List String
-filterByInput input words =
-    case input of
-        Input "" ->
-            words
-
-        Input s ->
-            List.filter (String.contains s) words
+        MatchTypeChange t ->
+            ( { model | matchType = t }, Cmd.none )
 
 
 
@@ -47,12 +48,29 @@ filterByInput input words =
 
 
 view : Model -> Html Msg
-view model =
+view { words, searchWord, matchType } =
+    let
+        matchedWords =
+            filterList matchType searchWord words
+    in
     div []
         [ h1 [] [ text "Incremental Search" ]
-        , input [ placeholder "Search...", onInput (\w -> Input w) ] []
-        , wordList model.words
+        , input [ placeholder "Search...", onInput Search ] []
+        , wordList matchedWords
         ]
+
+
+filterList : MatchType -> String -> List String -> List String
+filterList match containWord =
+    case match of
+        Partial ->
+            List.filter (String.contains containWord)
+
+        Foward ->
+            List.filter (Regex.contains (Regex.regex <| "^" ++ containWord))
+
+        Backward ->
+            List.filter (Regex.contains (Regex.regex <| containWord ++ "$"))
 
 
 wordList : List String -> Html Msg
