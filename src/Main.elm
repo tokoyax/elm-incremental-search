@@ -64,13 +64,13 @@ filterList : MatchType -> String -> List String -> List String
 filterList match containWord =
     case match of
         Partial ->
-            List.filter (String.contains containWord)
+            List.filter <| String.contains containWord
 
         Foward ->
-            List.filter (Regex.contains (Regex.regex <| "^" ++ containWord))
+            List.filter <| Regex.contains <| Regex.regex ("^" ++ containWord)
 
         Backward ->
-            List.filter (Regex.contains (Regex.regex <| containWord ++ "$"))
+            List.filter <| Regex.contains <| Regex.regex (containWord ++ "$")
 
 
 wordList : List String -> Html Msg
