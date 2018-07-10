@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Html exposing (Attribute, Html, div, h1, input, li, program, strong, text, ul)
+import Html exposing (Attribute, Html, b, div, h1, input, li, program, strong, text, ul)
 import Html.Attributes exposing (class, placeholder, value)
 import Html.Events exposing (onInput)
 import Regex exposing (contains)
@@ -52,11 +52,17 @@ view { words, searchWord, matchType } =
     let
         matchedWords =
             filterList matchType searchWord words
+
+        wordList =
+            if List.isEmpty words then
+                ul [ class "empty" ] []
+            else
+                ul [] <| words2li matchedWords searchWord
     in
     div []
         [ h1 [] [ text "Incremental Search" ]
         , input [ placeholder "Search...", onInput Search ] []
-        , wordList matchedWords
+        , wordList
         ]
 
 
@@ -73,17 +79,16 @@ filterList match containWord =
             List.filter <| Regex.contains <| Regex.regex (containWord ++ "$")
 
 
-wordList : List String -> Html Msg
-wordList words =
-    if List.isEmpty words then
-        ul [ class "empty" ] []
-    else
-        ul [] <| words2li words
+words2li : List String -> String -> List (Html Msg)
+words2li list searchWord =
+    List.map (\word -> li [] <| emphasis word searchWord) list
 
 
-words2li : List String -> List (Html Msg)
-words2li =
-    List.map (\word -> li [] [ text word ])
+emphasis : String -> String -> List (Html Msg)
+emphasis word searchWord =
+    String.split searchWord word
+        |> List.map text
+        |> List.intersperse (b [] [ text searchWord ])
 
 
 
