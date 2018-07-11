@@ -58,12 +58,17 @@ view { words, searchWord, matchType } =
                 ul [ class "empty" ] []
             else
                 ul [] <| words2li matchedWords searchWord
+
+        matchCount =
+            toString <| List.length matchedWords
     in
     div []
         [ h1 [] [ text "Incremental Search" ]
         , input [ placeholder "Search...", onInput Search ] []
         , div []
             [ matchTypeSelector matchType
+            , text "match count: "
+            , text matchCount
             , wordList
             ]
         ]
