@@ -1,8 +1,8 @@
 module Main exposing (..)
 
-import Html exposing (Attribute, Html, b, div, h1, input, li, program, strong, text, ul)
-import Html.Attributes exposing (class, placeholder, value)
-import Html.Events exposing (onInput)
+import Html exposing (Attribute, Html, b, div, fieldset, h1, input, label, li, program, strong, text, ul)
+import Html.Attributes exposing (checked, class, id, name, placeholder, type_, value)
+import Html.Events exposing (onClick, onInput)
 import Regex exposing (contains)
 
 
@@ -30,7 +30,7 @@ init =
 
 type Msg
     = Search String
-    | MatchTypeChange MatchType
+    | ChangeMatchTypeTo MatchType
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -39,7 +39,7 @@ update msg ({ words, searchWord, matchType } as model) =
         Search w ->
             ( { model | searchWord = w }, Cmd.none )
 
-        MatchTypeChange t ->
+        ChangeMatchTypeTo t ->
             ( { model | matchType = t }, Cmd.none )
 
 
@@ -62,7 +62,10 @@ view { words, searchWord, matchType } =
     div []
         [ h1 [] [ text "Incremental Search" ]
         , input [ placeholder "Search...", onInput Search ] []
-        , wordList
+        , div []
+            [ matchTypeSelector matchType
+            , wordList
+            ]
         ]
 
 
@@ -89,6 +92,34 @@ emphasis word searchWord =
     String.split searchWord word
         |> List.map text
         |> List.intersperse (b [] [ text searchWord ])
+
+
+matchTypeSelector : MatchType -> Html Msg
+matchTypeSelector matchType =
+    let
+        isChecked : MatchType -> Bool
+        isChecked t =
+            if t == matchType then
+                True
+            else
+                False
+    in
+    div [ id "match-type-selector" ]
+        [ fieldset []
+            [ label []
+                [ input [ type_ "radio", name "match-type", checked <| isChecked Partial, onClick (ChangeMatchTypeTo Partial) ] []
+                , text "Partial Match"
+                ]
+            , label []
+                [ input [ type_ "radio", name "match-type", checked <| isChecked Foward, onClick (ChangeMatchTypeTo Foward) ] []
+                , text "Foward Match"
+                ]
+            , label []
+                [ input [ type_ "radio", name "match-type", checked <| isChecked Backward, onClick (ChangeMatchTypeTo Backward) ] []
+                , text "Backward Match"
+                ]
+            ]
+        ]
 
 
 
